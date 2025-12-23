@@ -1,0 +1,39 @@
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+subprojects { project ->
+    if (project.name != "app") {
+        project.ext.flutter = [
+                compileSdkVersion: 35,
+                minSdkVersion    : 21,
+                targetSdkVersion : 34,
+                ndkVersion       : "26.1.10909125",
+        ]
+    }
+
+    buildscript {
+        configurations.classpath {
+            resolutionStrategy.eachDependency { details ->
+                if (details.requested.group == "com.android.tools.build" && details.requested.name == "gradle") {
+                    details.useVersion("8.3.2")
+                }
+            }
+        }
+    }
+}
+
+rootProject.buildDir = "../build"
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(":app")
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
